@@ -1,0 +1,1 @@
+Поместите сюда вашу 3D-модель и назовите её bioreactor.glb. Ожидаемый путь: assets/bioreactor.glb

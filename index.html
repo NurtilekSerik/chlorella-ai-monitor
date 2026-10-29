@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102b24">
+  <title>Chlorella AI Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root{--bg:#f3f7f4;--panel:#fff;--ink:#17342b;--muted:#71837a;--line:#e1eae4;--green:#17865d;--green2:#dff5e8;--amber:#e9a23b;--red:#d95757;--shadow:0 12px 34px rgba(22,57,42,.07)}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,system-ui,sans-serif;color:var(--ink)}
+    .app{max-width:1400px;margin:auto;padding:22px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}
+    .brand{display:flex;align-items:center;gap:12px}.logo{width:46px;height:46px;border-radius:15px;background:#123c2d;color:#a6f0c4;display:grid;place-items:center;font-size:24px}
+    h1{font-size:clamp(20px,3vw,28px);margin:0;letter-spacing:-.7px}.subtitle{color:var(--muted);font-size:13px;margin-top:5px}
+    .top-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.pill{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:99px;padding:9px 12px;background:#fff;font-size:12px;font-weight:600}
+    .dot{width:8px;height:8px;border-radius:50%;background:var(--amber)}.dot.live{background:#20a568}.dot.demo{background:#e3a33b}
+    button,select,input{font:inherit}button{border:0;border-radius:11px;padding:10px 13px;font-weight:600;cursor:pointer;background:#e4f4e9;color:#15563a}button.primary{background:#176b49;color:white}button.secondary{background:#f1f5f2;color:#39584a;border:1px solid var(--line)}button:disabled{opacity:.5;cursor:not-allowed}
+    .banner{display:flex;align-items:flex-start;gap:10px;background:#fff6e5;border:1px solid #f4dfb6;color:#76541c;border-radius:13px;padding:12px 14px;font-size:12px;line-height:1.5;margin-bottom:18px}
+    .grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow);min-width:0}
+    .metric{grid-column:span 3}.metric-label{font-size:12px;color:var(--muted);font-weight:600}.metric-value{font-size:clamp(26px,3vw,36px);font-weight:700;letter-spacing:-1.2px;margin:12px 0 6px}.unit{font-size:13px;color:var(--muted);font-weight:500;letter-spacing:0}.metric-foot{font-size:11px;color:var(--muted)}.metric-icon{float:right;font-size:20px;background:#eaf7ee;border-radius:10px;padding:7px}
+    .section-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}.section-title h2{font-size:15px;margin:0}.hint{font-size:11px;color:var(--muted)}
+    .model-card{grid-column:span 7}.model-wrap{position:relative;height:390px;background:radial-gradient(ellipse at 50% 55%,#e1f3e8 0,#f4faf6 52%,#f8fbf9 100%);border:1px solid #e5f0e8;border-radius:14px;overflow:hidden}
+    #modelCanvas{width:100%;height:100%;display:block}.model-label{position:absolute;left:12px;top:12px;background:rgba(255,255,255,.86);backdrop-filter:blur(8px);padding:8px 10px;border-radius:10px;font-size:11px;color:#3c6250}
+    .model-tools{position:absolute;right:12px;top:12px;display:flex;gap:6px}.model-tools button{padding:8px 10px;background:rgba(255,255,255,.92);border:1px solid #e0ebe3}
+    .model-status{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}.status-item{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px}.tiny-dot{width:7px;height:7px;border-radius:50%;background:#1da46b}
+    .experiment-card{grid-column:span 5}.toggle-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 0;border-bottom:1px solid var(--line)}.toggle-row:last-of-type{border-bottom:0}.toggle-title{font-size:13px;font-weight:600}.toggle-desc{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.45}
+    .switch{position:relative;width:44px;height:25px;flex:0 0 auto}.switch input{opacity:0;width:0;height:0}.slider{position:absolute;inset:0;background:#cbd7cf;border-radius:30px;transition:.2s}.slider:before{content:"";position:absolute;width:19px;height:19px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 4px #0002}.switch input:checked+.slider{background:#17865d}.switch input:checked+.slider:before{transform:translateX(19px)}
+    .state-buttons{display:flex;gap:8px;margin-top:14px}.state-buttons button{flex:1}.chart-card{grid-column:span 8}.chart-box{height:270px;position:relative}.side-card{grid-column:span 4}.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px}.compare-box{padding:14px;border:1px solid var(--line);border-radius:13px;background:#fbfdfb}.compare-label{font-size:11px;color:var(--muted)}.compare-value{font-size:24px;font-weight:700;margin:8px 0 4px}.compare-note{font-size:11px;color:var(--muted);line-height:1.4}.positive{color:#168252}.negative{color:#b86b24}
+    .history-card{grid-column:span 12}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:12px;min-width:560px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line)}th{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}tbody tr:last-child td{border-bottom:0}.tag{padding:5px 8px;border-radius:99px;font-size:10px;font-weight:700;background:#e3f5e9;color:#176b49}.tag.demo{background:#fff0d2;color:#8b641c}.tag.off{background:#eef1ef;color:#596960}
+    .footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:11px;padding:18px 2px 4px}
+    .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#17342b;color:white;padding:12px 16px;border-radius:12px;font-size:12px;box-shadow:var(--shadow);display:none;z-index:20;max-width:90vw}
+    .empty{padding:20px;text-align:center;color:var(--muted);font-size:12px}
+    @media(max-width:900px){.metric{grid-column:span 6}.model-card,.experiment-card,.chart-card,.side-card{grid-column:span 12}.model-wrap{height:340px}.app{padding:15px}.chart-box{height:250px}}
+    @media(max-width:520px){header{align-items:flex-start;flex-direction:column}.top-actions{width:100%}.top-actions .pill{flex:1}.metric{padding:14px}.metric-value{font-size:28px}.card{padding:14px;border-radius:15px}.model-wrap{height:300px}.state-buttons{flex-direction:column}.compare{grid-template-columns:1fr 1fr}.subtitle{max-width:290px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><div class="logo">♧</div><div><h1>Chlorella AI Monitor</h1><div class="subtitle">Мониторинг школьного фотобиореактора · NUR O₂</div></div></div>
+    <div class="top-actions">
+      <div class="pill"><span id="connectionDot" class="dot demo"></span><span id="connectionLabel">Демонстрационный режим</span></div>
+      <button class="secondary" id="settingsBtn">Настройки подключения</button>
+    </div>
+  </header>
+
+  <div class="banner" id="modeBanner"><span>ⓘ</span><div><strong>Демонстрационные данные.</strong> Это пример интерфейса, а не реальные показания. Чтобы включить реальные измерения, добавьте настройки Supabase и прошейте ESP32 кодом из комплекта.</div></div>
+
+  <section class="grid">
+    <div class="card metric"><span class="metric-icon">◉</span><div class="metric-label">Уровень CO₂</div><div class="metric-value" id="co2Value">— <span class="unit">ppm</span></div><div class="metric-foot" id="co2Foot">Ожидание данных</div></div>
+    <div class="card metric"><span class="metric-icon">♨</span><div class="metric-label">Температура</div><div class="metric-value" id="tempValue">— <span class="unit">°C</span></div><div class="metric-foot" id="tempFoot">Ожидание данных</div></div>
+    <div class="card metric"><span class="metric-icon">≋</span><div class="metric-label">Влажность</div><div class="metric-value" id="humValue">— <span class="unit">%</span></div><div class="metric-foot" id="humFoot">Ожидание данных</div></div>
+    <div class="card metric"><span class="metric-icon">◌</span><div class="metric-label">Биореактор</div><div class="metric-value" id="reactorValue">ВЫКЛ.</div><div class="metric-foot" id="reactorFoot">Состояние эксперимента</div></div>
+
+    <div class="card model-card">
+      <div class="section-title"><h2>3D-модель биореактора</h2><span class="hint">Перетаскивайте · вращайте · приближайте</span></div>
+      <div class="model-wrap">
+        <canvas id="modelCanvas"></canvas>
+        <div class="model-label" id="modelLabel">3D-визуализация · не измерение роста</div>
+        <div class="model-tools"><button id="resetViewBtn" title="Сбросить вид">⟳</button><button id="lightBtn" title="Переключить LED">☼ LED</button></div>
+      </div>
+      <div class="model-status"><div class="status-item"><span class="tiny-dot" id="ledDot"></span><span id="ledStatus">LED: включена (визуализация)</span></div><div class="status-item">● Анимация пузырьков: условная</div><div class="status-item" id="modelFileStatus">Загрузка 3D-модели...</div></div>
+    </div>
+
+    <div class="card experiment-card">
+      <div class="section-title"><h2>Эксперимент</h2><span class="hint">Сравнение режимов</span></div>
+      <div class="toggle-row"><div><div class="toggle-title">Биореактор включён</div><div class="toggle-desc">Отметьте, когда система работает и идёт измерение.</div></div><label class="switch"><input type="checkbox" id="reactorToggle"><span class="slider"></span></label></div>
+      <div class="toggle-row"><div><div class="toggle-title">LED-подсветка</div><div class="toggle-desc">Меняет подсветку в 3D-модели. Физическую LED-ленту сайт не включает.</div></div><label class="switch"><input type="checkbox" id="ledToggle" checked><span class="slider"></span></label></div>
+      <div class="state-buttons"><button class="primary" id="markStartBtn">Начать замер</button><button class="secondary" id="exportBtn">Экспорт CSV</button></div>
+      <div style="margin-top:17px;padding:13px;background:#f5faf6;border-radius:12px">
+        <div class="metric-label">Краткий анализ</div><div id="analysisText" style="font-size:12px;line-height:1.6;margin-top:7px">После получения нескольких измерений здесь появится описание тренда. Автоматический анализ не доказывает причинно-следственную связь.</div>
+      </div>
+    </div>
+
+    <div class="card chart-card">
+      <div class="section-title"><h2>История показаний</h2><select id="chartMetric" style="border:1px solid var(--line);border-radius:9px;padding:8px;background:white;color:var(--ink);font-size:12px"><option value="co2">CO₂ (ppm)</option><option value="temperature">Температура (°C)</option><option value="humidity">Влажность (%)</option></select></div>
+      <div class="chart-box"><canvas id="historyChart"></canvas></div>
+    </div>
+    <div class="card side-card">
+      <div class="section-title"><h2>Сравнение эксперимента</h2><span class="hint">Средний CO₂</span></div>
+      <div class="compare">
+        <div class="compare-box"><div class="compare-label">Реактор ВЫКЛ.</div><div class="compare-value" id="avgOff">—</div><div class="compare-note">ppm · измеренные данные</div></div>
+        <div class="compare-box"><div class="compare-label">Реактор ВКЛ.</div><div class="compare-value" id="avgOn">—</div><div class="compare-note">ppm · измеренные данные</div></div>
+      </div>
+      <div style="margin-top:13px;padding:13px;background:#f7faf8;border-radius:12px"><div class="metric-label">Разница средних значений</div><div class="compare-value" id="difference">—</div><div class="compare-note" id="differenceNote">Нужны реальные измерения в обоих режимах.</div></div>
+      <p class="hint" style="line-height:1.5;margin:13px 0 0">Для честного сравнения проводите замеры в похожих условиях: одинаковая вентиляция, число людей и длительность опыта.</p>
+    </div>
+
+    <div class="card history-card">
+      <div class="section-title"><h2>Последние измерения</h2><span class="hint" id="historyCount">0 записей</span></div>
+      <div class="table-wrap"><table><thead><tr><th>Время</th><th>Источник</th><th>CO₂</th><th>Температура</th><th>Влажность</th><th>Реактор</th></tr></thead><tbody id="historyBody"><tr><td colspan="6" class="empty">Пока нет измерений</td></tr></tbody></table></div>
+    </div>
+  </section>
+  <div class="footer"><span>Chlorella AI Monitor · учебный прототип</span><span id="lastUpdated">Данные ещё не получены</span><span>Не используйте как сертифицированный прибор безопасности</span></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<dialog id="settingsDialog" style="border:0;border-radius:18px;max-width:500px;width:calc(100% - 28px);padding:22px;box-shadow:0 25px 80px #0003;color:#17342b">
+  <h2 style="margin:0 0 8px;font-size:19px">Подключение реальных данных</h2>
+  <p style="font-size:12px;line-height:1.5;color:#71837a">Введите URL проекта Supabase и anon/public key. Эти поля сохраняются только в памяти текущей страницы и не записываются в файл. Для постоянного подключения добавьте их в конфигурацию сайта перед публикацией.</p>
+  <label style="display:block;font-size:12px;font-weight:600;margin:13px 0 6px">Supabase Project URL</label><input id="supabaseUrl" placeholder="https://xxxx.supabase.co" style="width:100%;padding:11px;border:1px solid #dce6df;border-radius:9px">
+  <label style="display:block;font-size:12px;font-weight:600;margin:13px 0 6px">Supabase anon/public key</label><input id="supabaseKey" placeholder="eyJ..." style="width:100%;padding:11px;border:1px solid #dce6df;border-radius:9px">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:17px"><button class="primary" id="connectBtn">Подключиться</button><button class="secondary" id="demoBtn">Вернуться к демо</button><button class="secondary" id="closeSettingsBtn">Закрыть</button></div>
+  <p style="font-size:11px;line-height:1.5;color:#71837a;margin-bottom:0">Для учебного прототипа используйте публичный anon key с ограниченными RLS-политиками. Никогда не вставляйте service_role key в сайт или прошивку.</p>
+</dialog>
+
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const $ = id => document.getElementById(id);
+const state = { mode:'demo', url:'', key:'', reactor:false, led:true, records:[], last:null, poll:null, chart:null, model:null, bubbles:[], ledMeshes:[], startedAt:null };
+const fmt = (v,n=1) => Number.isFinite(Number(v)) ? Number(v).toFixed(n) : '—';
+const timeLabel = iso => new Date(iso).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+function toast(msg){const t=$('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2600)}
+function setMode(mode){
+  state.mode=mode; const live=mode==='live';
+  $('connectionDot').className='dot '+(live?'live':'demo');
+  $('connectionLabel').textContent=live?'Реальные данные':'Демонстрационный режим';
+  $('modeBanner').style.display=live?'none':'flex';
+  if(!live) $('modeBanner').innerHTML='<span>ⓘ</span><div><strong>Демонстрационные данные.</strong> Это пример интерфейса, а не реальные показания. Исторические демонстрационные данные не смешиваются с реальными измерениями.</div>';
+}
+function updateMetrics(r){
+  $('co2Value').innerHTML=`${Math.round(r.co2)} <span class="unit">ppm</span>`;
+  $('tempValue').innerHTML=`${fmt(r.temperature)} <span class="unit">°C</span>`;
+  $('humValue').innerHTML=`${fmt(r.humidity)} <span class="unit">%</span>`;
+  $('reactorValue').textContent=r.reactor_on?'ВКЛ.':'ВЫКЛ.';
+  $('reactorFoot').textContent=r.reactor_on?'Режим эксперимента: включён':'Режим эксперимента: выключен';
+  $('co2Foot').textContent=r.co2>=1000?'Повышенный уровень — проверьте вентиляцию':'Показание датчика CO₂';
+  $('tempFoot').textContent='Последнее измерение';
+  $('humFoot').textContent='Последнее измерение';
+  $('lastUpdated').textContent='Обновлено: '+new Date(r.created_at).toLocaleString();
+  $('reactorToggle').checked=!!r.reactor_on;
+}
+function addRecord(r){
+  state.last=r;
+  state.records.push(r);
+  if(state.records.length>500)state.records=state.records.slice(-500);
+  updateMetrics(r); renderHistory(); renderCompare(); updateChart(); updateAnalysis();
+}
+function renderHistory(){
+  $('historyCount').textContent=`${state.records.length} записей`;
+  const rows=state.records.slice(-12).reverse();
+  $('historyBody').innerHTML=rows.length?rows.map(r=>`<tr><td>${new Date(r.created_at).toLocaleString()}</td><td><span class="tag ${r.source==='demo'?'demo':''}">${r.source==='demo'?'Демо':'Датчик'}</span></td><td>${Math.round(r.co2)} ppm</td><td>${fmt(r.temperature)} °C</td><td>${fmt(r.humidity)}%</td><td><span class="tag ${r.reactor_on?'':'off'}">${r.reactor_on?'ВКЛ.':'ВЫКЛ.'}</span></td></tr>`).join(''):'<tr><td colspan="6" class="empty">Пока нет измерений</td></tr>';
+}
+function renderCompare(){
+  const real=state.records.filter(r=>r.source==='real');
+  const off=real.filter(r=>!r.reactor_on), on=real.filter(r=>r.reactor_on);
+  const avg=a=>a.length?a.reduce((s,r)=>s+Number(r.co2),0)/a.length:null;
+  const a=avg(off),b=avg(on);
+  $('avgOff').textContent=a===null?'—':Math.round(a);
+  $('avgOn').textContent=b===null?'—':Math.round(b);
+  if(a!==null&&b!==null){
+    const d=b-a; $('difference').textContent=(d>0?'+':'')+Math.round(d)+' ppm';
+    $('difference').className='compare-value '+(d<0?'positive':d>0?'negative':'');
+    $('differenceNote').textContent=d<0?'В этой выборке CO₂ ниже при включённом режиме. Это не доказывает, что снижение вызвано только хлореллой.':d>0?'В этой выборке CO₂ выше при включённом режиме. Проверьте условия и повторите опыт.':'Средние значения совпадают в пределах округления.';
+  } else {$('difference').textContent='—';$('difference').className='compare-value';$('differenceNote').textContent='Нужны реальные измерения в обоих режимах.'}
+}
+function updateAnalysis(){
+  const r=state.records.filter(x=>x.source==='real');
+  if(r.length<3){$('analysisText').textContent='Для анализа нужны минимум 3 реальные записи. Демонстрационные данные в вывод не включаются.';return}
+  const recent=r.slice(-5),first=recent[0].co2,last=recent[recent.length-1].co2,d=last-first;
+  $('analysisText').textContent=`В последних ${recent.length} реальных измерениях CO₂ ${d<0?'снизился на '+Math.abs(Math.round(d))+' ppm':d>0?'увеличился на '+Math.round(d)+' ppm':'почти не изменился'} (${Math.round(first)} → ${Math.round(last)} ppm). Это описание тренда, а не доказательство влияния биореактора.`;
+}
+function updateChart(){
+  if(!state.chart)return;
+  const metric=$('chartMetric').value;
+  state.chart.data.labels=state.records.map(r=>timeLabel(r.created_at));
+  state.chart.data.datasets[0].data=state.records.map(r=>r[metric]);
+  state.chart.data.datasets[1].data=state.records.map(r=>r.source==='real'?r[metric]:null);
+  state.chart.update('none');
+}
+const chartCtx=$('historyChart').getContext('2d');
+state.chart=new Chart(chartCtx,{type:'line',data:{labels:[],datasets:[
+  {label:'Все отображаемые данные',data:[],borderColor:'#17865d',backgroundColor:'rgba(23,134,93,.08)',fill:true,tension:.3,pointRadius:1.5,borderWidth:2,spanGaps:false},
+  {label:'Реальные измерения',data:[],borderColor:'#dc8d25',backgroundColor:'#dc8d25',showLine:false,pointRadius:3,pointHoverRadius:5}
+]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{usePointStyle:true,boxWidth:7,font:{family:'Inter',size:10}}}},scales:{x:{ticks:{maxTicksLimit:7,color:'#71837a',font:{size:10}},grid:{display:false}},y:{beginAtZero:false,ticks:{color:'#71837a',font:{size:10}},grid:{color:'#edf2ee'}}}}});
+$('chartMetric').addEventListener('change',updateChart);
+
+function demoTick(){
+  const prev=state.records.filter(r=>r.source==='demo').slice(-1)[0];
+  const co2=Math.max(430,Math.min(1500,(prev?.co2??760)+(Math.random()-.52)*34+(state.reactor?-.9:1.8)));
+  addRecord({co2:Math.round(co2),temperature:Number((24+Math.random()*1.8).toFixed(1)),humidity:Number((43+Math.random()*9).toFixed(1)),reactor_on:state.reactor,created_at:new Date().toISOString(),source:'demo'});
+}
+async function fetchLive(){
+  if(!state.url||!state.key)return;
+  try{
+    const endpoint=state.url.replace(/\/$/,'')+'/rest/v1/readings?select=id,created_at,co2,temperature,humidity,reactor_on&order=created_at.desc&limit=100';
+    const res=await fetch(endpoint,{headers:{apikey:state.key,Authorization:'Bearer '+state.key}});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    if(!Array.isArray(data))throw new Error('Некорректный ответ API');
+    const sorted=data.reverse().map(r=>({...r,co2:Number(r.co2),temperature:Number(r.temperature),humidity:Number(r.humidity),reactor_on:!!r.reactor_on,source:'real'}));
+    state.records=sorted; state.last=sorted.at(-1)||null;
+    if(state.last)updateMetrics(state.last);
+    setMode('live');renderHistory();renderCompare();updateChart();updateAnalysis();
+    $('modelLabel').textContent='3D-визуализация · реальные данные датчиков отдельно';
+  }catch(e){toast('Не удалось получить данные: '+e.message);console.error(e)}
+}
+function connectLive(url,key){
+  state.url=url.trim();state.key=key.trim();
+  if(!/^https:\/\/.+\.supabase\.co\/?$/.test(state.url)){toast('Проверьте URL проекта Supabase');return}
+  if(!state.key){toast('Введите anon/public key');return}
+  clearInterval(state.poll);state.records=[];setMode('live');
+  $('settingsDialog').close();fetchLive();state.poll=setInterval(fetchLive,5000);
+  toast('Подключение настроено. Проверяем данные...');
+}
+$('settingsBtn').onclick=()=>$('settingsDialog').showModal();
+$('closeSettingsBtn').onclick=()=>$('settingsDialog').close();
+$('connectBtn').onclick=()=>connectLive($('supabaseUrl').value,$('supabaseKey').value);
+$('demoBtn').onclick=()=>{clearInterval(state.poll);state.poll=null;state.records=[];setMode('demo');$('settingsDialog').close();for(let i=0;i<18;i++)demoTick();toast('Включён демонстрационный режим')};
+$('reactorToggle').onchange=e=>{state.reactor=e.target.checked;if(state.mode==='demo')demoTick();else toast('Переключатель — метка эксперимента; он не включает физическое устройство.');};
+$('ledToggle').onchange=e=>{state.led=e.target.checked;setLedVisual(state.led);};
+$('lightBtn').onclick=()=>{$('ledToggle').checked=!$('ledToggle').checked;$('ledToggle').dispatchEvent(new Event('change'))};
+$('markStartBtn').onclick=()=>{state.startedAt=new Date();toast('Начало замера отмечено локально: '+state.startedAt.toLocaleTimeString())};
+$('exportBtn').onclick=()=>{
+  if(!state.records.length){toast('Нет данных для экспорта');return}
+  const head='created_at,source,co2_ppm,temperature_c,humidity_percent,reactor_on';
+  const lines=state.records.map(r=>[r.created_at,r.source,r.co2,r.temperature,r.humidity,r.reactor_on].join(','));
+  const blob=new Blob([[head,...lines].join('\n')],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='chlorella-monitor-history.csv';a.click();URL.revokeObjectURL(a.href);
+};
+function setLedVisual(on){
+  state.led=on;
+  state.ledMeshes.forEach(m=>{m.material.emissiveIntensity=on?1.8:.05;m.material.color.set(on?0xffd86b:0x7d9283)});
+  $('ledStatus').textContent='LED: '+(on?'включена':'выключена')+' (визуализация)';
+  $('ledDot').style.background=on?'#e9b44c':'#a8b4ad';
+}
+function init3D(){
+  const canvas=$('modelCanvas'),wrap=canvas.parentElement;
+  const scene=new THREE.Scene();scene.background=new THREE.Color(0xf3faf5);
+  const camera=new THREE.PerspectiveCamera(40,wrap.clientWidth/wrap.clientHeight,.1,100);camera.position.set(3.4,2.4,4.4);
+  const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(wrap.clientWidth,wrap.clientHeight,false);renderer.outputColorSpace=THREE.SRGBColorSpace;
+  scene.add(new THREE.HemisphereLight(0xffffff,0x93b8a0,2.2));
+  const light=new THREE.DirectionalLight(0xffffff,2.4);light.position.set(4,5,3);scene.add(light);
+  const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.target.set(0,.8,0);
+  const floor=new THREE.Mesh(new THREE.CircleGeometry(2.6,64),new THREE.MeshStandardMaterial({color:0xe2f1e7,roughness:.95}));floor.rotation.x=-Math.PI/2;floor.position.y=-.03;scene.add(floor);
+  const fallback=new THREE.Group();scene.add(fallback);
+  const glass=new THREE.Mesh(new THREE.CylinderGeometry(.7,.7,2.3,48,1,true),new THREE.MeshPhysicalMaterial({color:0xa6d9c0,transparent:true,opacity:.28,roughness:.12,metalness:.05,side:THREE.DoubleSide}));glass.position.y=1.15;fallback.add(glass);
+  const liquid=new THREE.Mesh(new THREE.CylinderGeometry(.66,.66,1.55,48),new THREE.MeshPhysicalMaterial({color:0x319b56,transparent:true,opacity:.75,roughness:.25}));liquid.position.y=.88;fallback.add(liquid);
+  const lid=new THREE.Mesh(new THREE.CylinderGeometry(.75,.75,.14,48),new THREE.MeshStandardMaterial({color:0x263c33,metalness:.35,roughness:.35}));lid.position.y=2.35;fallback.add(lid);
+  const base=new THREE.Mesh(new THREE.CylinderGeometry(.78,.78,.16,48),new THREE.MeshStandardMaterial({color:0x263c33,metalness:.25,roughness:.4}));base.position.y=.08;fallback.add(base);
+  const tubeMat=new THREE.MeshStandardMaterial({color:0xe8eee9,roughness:.35});
+  const tube=new THREE.Mesh(new THREE.TorusGeometry(.16,.025,8,32),tubeMat);tube.rotation.x=Math.PI/2;tube.position.set(0,2.45,0);fallback.add(tube);
+  const ledMat=new THREE.MeshStandardMaterial({color:0xffd86b,emissive:0xffc94a,emissiveIntensity:1.8});
+  for(let i=0;i<12;i++){const m=new THREE.Mesh(new THREE.SphereGeometry(.035,12,8),ledMat.clone());const a=i/12*Math.PI*2;m.position.set(.73*Math.cos(a),2.22,.73*Math.sin(a));fallback.add(m);state.ledMeshes.push(m)}
+  for(let i=0;i<18;i++){const b=new THREE.Mesh(new THREE.SphereGeometry(.025+Math.random()*.025,8,6),new THREE.MeshBasicMaterial({color:0xd8f8df,transparent:true,opacity:.75}));b.position.set((Math.random()-.5)*.65,.25+Math.random()*1.6,(Math.random()-.5)*.65);fallback.add(b);state.bubbles.push(b)}
+  const loader=new GLTFLoader();
+  loader.load('assets/bioreactor.glb',gltf=>{
+    scene.remove(fallback);state.model=gltf.scene;scene.add(state.model);
+    const box=new THREE.Box3().setFromObject(state.model);const size=box.getSize(new THREE.Vector3());const center=box.getCenter(new THREE.Vector3());
+    state.model.position.sub(center);const max=Math.max(size.x,size.y,size.z)||1;state.model.scale.setScalar(2.6/max);state.model.position.y+=.95;
+    controls.target.set(0,.9,0);$('modelFileStatus').textContent='Файл GLB загружен';
+    state.ledMeshes=[];$('modelLabel').textContent='Загружена пользовательская GLB-модель';
+  },undefined,err=>{$('modelFileStatus').textContent='Показана запасная 3D-модель';console.warn('GLB not loaded; fallback model used.',err)});
+  $('resetViewBtn').onclick=()=>{camera.position.set(3.4,2.4,4.4);controls.target.set(0,.8,0);controls.update()};
+  const resize=()=>{const w=wrap.clientWidth,h=wrap.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)};
+  new ResizeObserver(resize).observe(wrap);
+  function animate(t){requestAnimationFrame(animate);controls.update();state.bubbles.forEach((b,i)=>{if(b.parent===fallback){b.position.y=.2+((t*.00035+i*.17)%1.7);b.position.x+=Math.sin(t*.001+i)*.0004;if(b.position.y>1.95)b.position.y=.2}});renderer.render(scene,camera)}
+  animate(0);
+}
+init3D();
+setMode('demo');
+for(let i=0;i<18;i++)demoTick();
+</script>
+</body>
+</html>
